@@ -41,13 +41,13 @@ public interface ConnectionManager extends PersistentStateComponent<Element> {
 
     @Nullable
     static <R extends Resource, C extends Resource> ConnectionDefinition<R, C> getDefinition(R resource, C consumer) {
-        final String type = Connection.typeOf(resource, consumer);
+        final String type = Connection.typeOf(resource.getType(), consumer.getType());
         return getDefinition(type);
     }
 
     @Nonnull
     static <R extends Resource, C extends Resource> ConnectionDefinition<R, C> getDefinitionOrDefault(R resource, C consumer) {
-        final String type = Connection.typeOf(resource, consumer);
+        final String type = Connection.typeOf(resource.getType(), consumer.getType());
         return Optional.ofNullable(ConnectionManager.getDefinition(resource, consumer)).orElse(new DefaultConnection.Definition<>(type));
     }
 
@@ -89,15 +89,16 @@ public interface ConnectionManager extends PersistentStateComponent<Element> {
         public Element getState() {
             final Element connectionsEle = new Element(ELEMENT_NAME_CONNECTIONS);
             for (final Connection connection : this.connections) {
-                final var definition = (ConnectionDefinition<? extends Resource, ? extends Resource>) ConnectionManager.getDefinition(connection.getType());
-                assert definition != null : String.format("definition for connection of type \"%s\" is not found", connection.getType());
+                final String connectionType = Connection.typeOf(connection.getResource().getType(), connection.getConsumer().getType());
+                final var definition = (ConnectionDefinition<? extends Resource, ? extends Resource>) ConnectionManager.getDefinition(connectionType);
+                assert definition != null : String.format("definition for connection of type \"%s\" is not found", connectionType);
                 final Element connectionEle = new Element(ELEMENT_NAME_CONNECTION);
                 try {
                     definition.write(connectionEle, connection);
-                    connectionEle.setAttribute(Connection.FIELD_TYPE, connection.getType());
+                    connectionEle.setAttribute(Connection.FIELD_TYPE, connectionType);
                     connectionsEle.addContent(connectionEle);
                 } catch (final Exception e) {
-                    log.log(Level.WARNING, String.format("error occurs when persist a resource connection of type '%s'", connection.getType()), e);
+                    log.log(Level.WARNING, String.format("error occurs when persist a resource connection of type '%s'", connectionType), e);
                 }
             }
             return connectionsEle;
@@ -111,7 +112,6 @@ public interface ConnectionManager extends PersistentStateComponent<Element> {
                 try {
                     final var connection = definition.read(connectionEle);
                     if (Objects.nonNull(connection)) {
-                        connection.setType(connectionType);
                         this.addConnection(connection);
                     }
                 } catch (final Exception e) {

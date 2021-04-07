@@ -11,7 +11,14 @@ public interface ResourceDefinition<T extends Resource> {
     int CONSUMER = 2;
     int BOTH = RESOURCE | CONSUMER;
 
-    default int isResourceOrConsumer() {
+    /**
+     * get the role of the resource
+     *
+     * @return {@link ResourceDefinition#RESOURCE RESOURCE=1} if this resource can only be consumed,<br>
+     * {@link ResourceDefinition#CONSUMER CONSUMER=2} if this resource can only be a consumer or<br>
+     * {@link ResourceDefinition#BOTH BOTH=3} if this resource can be both resource and consumer
+     */
+    default int getRole() {
         return RESOURCE;
     }
 
@@ -21,14 +28,23 @@ public interface ResourceDefinition<T extends Resource> {
 
     String getType();
 
+    /**
+     * get resource selection panel<br>
+     * with this panel, user could select/create a {@link T} resource.
+     *
+     * @param type type of the resource
+     */
     AzureFormJPanel<T> getResourcesPanel(@Nonnull final String type, final Project project);
 
     /**
-     * write {@param value} to {@param element} for persistence
+     * write/serialize {@code resouce} to {@code element} for persistence
      *
      * @return true if to persist, false otherwise
      */
-    boolean write(@Nonnull final Element element, @Nonnull final T value);
+    boolean write(@Nonnull final Element element, @Nonnull final T resouce);
 
+    /**
+     * read/deserialize a instance of {@link T} from {@code element}
+     */
     T read(@Nonnull final Element element);
 }

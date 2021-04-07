@@ -132,10 +132,9 @@ public class ConnectorDialog<R extends Resource, C extends Resource> extends Azu
     public Connection<R, C> getData() {
         final R resource = this.resourcePanel.getData();
         final C consumer = this.consumerPanel.getData();
-        final String type = Connection.typeOf(resource, consumer);
         final ConnectionDefinition<R, C> definition = ConnectionManager.getDefinition(resource, consumer);
         if (Objects.nonNull(definition)) {
-            return definition.create(type, resource, consumer);
+            return definition.create(resource, consumer);
         }
         return new DefaultConnection<>(resource, consumer);
     }
@@ -156,12 +155,12 @@ public class ConnectorDialog<R extends Resource, C extends Resource> extends Azu
 
     public void setResource(final R resource) {
         this.resource = resource;
-        this.resourceTypeSelector.setValue(new ItemReference<>(resource.getDefinition(), d -> d), true);
+        this.resourceTypeSelector.setValue(new ItemReference<>(resource.getType(), ResourceDefinition::getType), true);
     }
 
     public void setConsumer(final C consumer) {
         this.consumer = consumer;
-        this.consumerTypeSelector.setValue(new ItemReference<>(consumer.getDefinition(), d -> d), true);
+        this.consumerTypeSelector.setValue(new ItemReference<>(consumer.getType(), ResourceDefinition::getType), true);
     }
 
     private void fixResourceType(ResourceDefinition<? extends Resource> definition) {

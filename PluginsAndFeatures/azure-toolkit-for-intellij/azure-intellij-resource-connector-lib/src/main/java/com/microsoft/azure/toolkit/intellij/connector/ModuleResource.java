@@ -27,7 +27,7 @@ import java.util.Objects;
 @Builder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public final class ModuleResource implements Resource {
-    private final Definition definition = Definition.IJ_MODULE;
+    private final String type = Definition.IJ_MODULE.type;
     private final String moduleName;
 
     @Override
@@ -55,11 +55,7 @@ public final class ModuleResource implements Resource {
         IJ_MODULE("Jetbrains.IJModule", "Intellij Module");
         private final String type;
         private final String name;
-
-        @Override
-        public int isResourceOrConsumer() {
-            return CONSUMER;
-        }
+        private final int role = CONSUMER;
 
         @Override
         public AzureFormJPanel<ModuleResource> getResourcesPanel(String type, final Project project) {

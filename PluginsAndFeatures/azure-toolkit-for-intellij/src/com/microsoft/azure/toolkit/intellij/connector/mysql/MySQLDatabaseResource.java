@@ -33,7 +33,7 @@ import javax.annotation.Nullable;
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public final class MySQLDatabaseResource implements Resource {
-    private final Definition definition = Definition.AZURE_MYSQL;
+    private final String type = Definition.AZURE_MYSQL.type;
     private final String databaseName;
     private final ResourceId serverId;
 
